@@ -27,7 +27,7 @@ async function getAccessToken(): Promise<string | null> {
     headers: {
       'authorization': `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`,
       'content-type': 'application/x-www-form-urlencoded',
-      'user-agent': 'trendblog:v0.1.0 (by /u/trendblog)',
+      'user-agent': 'thetunerdepot:v0.1.0 (by /u/thetunerdepot)',
     },
     body: 'grant_type=client_credentials',
   });
@@ -53,7 +53,7 @@ export async function fetchReddit(): Promise<RawItem[]> {
   }
 
   const items: RawItem[] = [];
-  const ua = 'trendblog:v0.1.0 (by /u/trendblog)';
+  const ua = 'thetunerdepot:v0.1.0 (by /u/thetunerdepot)';
 
   for (const sub of SUBREDDITS) {
     try {

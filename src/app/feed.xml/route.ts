@@ -1,10 +1,11 @@
 import { listPosts } from '@/lib/posts';
+import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from '@/lib/structured-data';
 
 export const revalidate = 300;
 
 export async function GET() {
   const posts = await listPosts();
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://wireandlogic.com';
+  const siteUrl = SITE_URL;
 
   const items = posts
     .slice(0, 20)
@@ -24,9 +25,9 @@ export async function GET() {
   const feed = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Wire and Logic</title>
+    <title>${SITE_NAME}</title>
     <link>${siteUrl}</link>
-    <description>An hourly trend brief for builders, synthesized from across the web.</description>
+    <description>${SITE_DESCRIPTION}</description>
     <language>en-us</language>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
     <atom:link href="${siteUrl}/feed.xml" rel="self" type="application/rss+xml"/>

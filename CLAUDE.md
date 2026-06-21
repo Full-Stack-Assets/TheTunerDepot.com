@@ -8,7 +8,7 @@ A self-hosted, near-zero-cost auto-blog engine. A scheduled GitHub Action runs h
 
 This particular deployment is **The Tuner Depot** (car-culture niche), but the codebase is a reusable template: everything niche-specific lives in `src/site.config.ts`. See `CREATE-A-SITE.md` for spinning up a new niche from the same engine.
 
-> **Note on stale docs:** `README.md` predates the current config — it refers to the site as "Wire and Logic" and names Groq as the default LLM. The live engine is configured for **Google Gemini** (`gemini-flash-latest`) in `src/site.config.ts`, which is the single source of truth for branding, niche, sources, and LLM provider. Trust `site.config.ts` over the README when they disagree.
+**`src/site.config.ts` is the single source of truth** for branding, niche, sources, and LLM provider. The live engine is configured for **Google Gemini** (`gemini-flash-latest`). When any other file disagrees with `site.config.ts`, treat the config as authoritative. (`README.md`, `CREATE-A-SITE.md`, and the user-facing pages all read from or are kept in sync with it.)
 
 ## Commands
 

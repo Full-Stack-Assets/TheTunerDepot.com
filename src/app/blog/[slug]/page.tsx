@@ -198,7 +198,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
       {/* Back link */}
       <div className="mt-16 border-t border-ink/20 pt-8">
         <Link href="/" className="inline-flex items-center gap-2 font-display font-semibold text-accent hover:gap-3 transition-all">
-          ← Back to Wire and Logic
+          ← Back to {SITE_NAME}
         </Link>
       </div>
     </article>

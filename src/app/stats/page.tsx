@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { listPosts } from '@/lib/posts';
+import { SITE_NAME } from '@/lib/structured-data';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import type { TopicLog } from '@/lib/orchestrator/types';
@@ -162,7 +163,7 @@ export default async function StatsPage() {
           href="/"
           className="inline-flex items-center gap-2 font-display font-semibold text-accent hover:gap-3 transition-all"
         >
-          ← Back to Wire and Logic
+          ← Back to {SITE_NAME}
         </Link>
       </div>
     </div>

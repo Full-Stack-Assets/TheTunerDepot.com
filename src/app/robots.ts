@@ -1,7 +1,8 @@
 import type { MetadataRoute } from 'next';
+import { SITE_URL } from '@/lib/structured-data';
 
 export default function robots(): MetadataRoute.Robots {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://wireandlogic.com';
+  const siteUrl = SITE_URL;
   return {
     rules: { userAgent: '*', allow: '/' },
     sitemap: `${siteUrl}/sitemap.xml`,

@@ -129,7 +129,7 @@ export async function generate(bundle: ResearchBundle): Promise<GeneratedPost> {
 
   // PostSchema heals the clampable overshoots on its own. Retry only covers the
   // genuinely unrepairable misses (too-short body, too-few tags, malformed JSON)
-  // and transient Groq errors, feeding the exact reason back so the model can
+  // and transient LLM errors, feeding the exact reason back so the model can
   // correct itself. Only fail loudly after exhausting attempts.
   for (let attempt = 1; attempt <= MAX_GENERATION_ATTEMPTS; attempt++) {
     const userPrompt =
@@ -164,7 +164,7 @@ export async function generate(bundle: ResearchBundle): Promise<GeneratedPost> {
   }
 
   throw new Error(
-    `Groq output failed validation after ${MAX_GENERATION_ATTEMPTS} attempts: ${lastError}`
+    `LLM output failed validation after ${MAX_GENERATION_ATTEMPTS} attempts: ${lastError}`
   );
 }
 

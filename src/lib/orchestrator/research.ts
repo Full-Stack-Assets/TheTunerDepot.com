@@ -30,7 +30,7 @@ async function scrapeArticle(url: string): Promise<{ title: string; content: str
     const timeout = setTimeout(() => controller.abort(), 8000);
     const res = await fetch(url, {
       signal: controller.signal,
-      headers: { 'user-agent': 'Mozilla/5.0 (compatible; trendblog/0.1)' },
+      headers: { 'user-agent': 'Mozilla/5.0 (compatible; thetunerdepot/0.1)' },
     });
     clearTimeout(timeout);
     if (!res.ok) return null;

@@ -60,8 +60,8 @@ jobs:
           # The deploy hook targets production; only fire it when pushing here.
           PRODUCTION_BRANCH: main
         run: |
-          git config user.name "trendblog-bot"
-          git config user.email "bot@trendblog.dev"
+          git config user.name "thetunerdepot-bot"
+          git config user.email "bot@thetunerdepot.com"
 
           # Register the union merge driver for content/.topic-log.json (mapped
           # in .gitattributes) so a rebase auto-merges concurrent appends to the
