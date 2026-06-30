@@ -43,6 +43,24 @@ jobs:
 
       - run: npm ci
 
+      - name: Verify required secrets
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
+        run: |
+          missing=0
+          if [ -z "${GEMINI_API_KEY}" ]; then
+            echo "::error::GEMINI_API_KEY secret is not set — the seed runner cannot write posts." >&2
+            missing=1
+          fi
+          if [ -z "${BRAVE_API_KEY}" ]; then
+            echo "::error::BRAVE_API_KEY secret is not set — seed topics have no source URL and require Brave web search." >&2
+            missing=1
+          fi
+          if [ "$missing" -ne 0 ]; then
+            exit 1
+          fi
+
       - name: Purge inherited posts (optional)
         if: ${{ inputs.purge }}
         run: |

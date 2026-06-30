@@ -67,10 +67,12 @@ async function main() {
     process.exit(1);
   }
   if (!process.env.BRAVE_API_KEY?.trim()) {
-    console.warn(
-      '⚠ BRAVE_API_KEY is not set. Evergreen topics have no source URL of their own, ' +
-        'so without web search there is nothing to research and every topic will be skipped.\n'
+    console.error(
+      '✗ BRAVE_API_KEY is not set — seed topics have no source URL, so web search is required.\n' +
+        '  Add it to GitHub Actions secrets (Settings → Secrets → Actions) and re-run.\n' +
+        '  Get a free key at https://api.search.brave.com/'
     );
+    process.exit(1);
   }
 
   let log = await loadLocalLog();
