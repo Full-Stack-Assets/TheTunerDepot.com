@@ -41,7 +41,7 @@ function Masthead() {
       <div>
         <div className="text-xs uppercase tracking-[0.3em] text-muted">Vol. 1 · Issue {Math.floor((Date.now() - new Date('2025-01-01').getTime()) / 86400000) + 1}</div>
         <h1 className="mt-2 font-display text-5xl sm:text-6xl font-black leading-none tracking-tight">
-          What shipped.<br /><span className="text-accent">What matters.</span>
+          Build it.<br /><span className="text-accent">Drive it.</span>
         </h1>
       </div>
       <div className="text-right text-xs uppercase tracking-widest text-muted">
@@ -132,7 +132,7 @@ function EmptyState() {
     <div className="border-2 border-dashed border-ink/25 py-24 text-center">
       <div className="font-display text-3xl font-bold">Nothing published yet.</div>
       <p className="mt-3 text-muted">
-        Run <code className="rounded bg-ink/10 px-2 py-0.5 text-sm">pnpm generate</code> or wait for the next cron tick.
+        Run <code className="rounded bg-ink/10 px-2 py-0.5 text-sm">npm run generate</code> or wait for the next cron tick.
       </p>
     </div>
   );

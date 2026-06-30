@@ -4,16 +4,20 @@ import type { RawItem } from '../orchestrator/types';
 // Google Trends' "Trending now" feed for the US. No API key needed.
 const TRENDS_RSS = 'https://trends.google.com/trending/rss?geo=US';
 
-// The raw feed is general-interest (sports, celebrities, weather…). Keep the
-// blog on its tech/AI/business niche by only surfacing trends whose term or
-// related headlines match one of these. Cheap substring match, lowercased.
-const TECH_KEYWORDS = [
-  'ai', 'artificial intelligence', 'llm', 'gpt', 'openai', 'anthropic', 'claude', 'gemini',
-  'google', 'apple', 'microsoft', 'meta', 'amazon', 'nvidia', 'intel', 'amd', 'chip', 'gpu',
-  'semiconductor', 'software', 'app', 'startup', 'tech', 'iphone', 'android', 'pixel',
-  'crypto', 'bitcoin', 'ethereum', 'robot', 'tesla', 'spacex', 'cyber', 'hack', 'breach',
-  'cloud', 'developer', 'programming', 'open source', 'open-source', 'quantum', 'vr', 'ar',
-  'headset', 'browser', 'operating system', 'data center', 'datacenter', 'agent',
+// The raw feed is general-interest. Keep the blog on its car-culture niche by
+// only surfacing trends whose term or related headlines match one of these.
+const NICHE_KEYWORDS = [
+  'car', 'cars', 'auto', 'automotive', 'vehicle', 'motor', 'motorsport', 'racing',
+  'tuner', 'tuning', 'stance', 'stanced', 'slammed', 'lowered', 'camber', 'fitment',
+  'jdm', 'drift', 'drifting', 'track day', 'trackday', 'nurburgring', 'formula',
+  'nascar', 'f1', 'rally', 'rallycross', 'hot rod', 'muscle car', 'sports car',
+  'supercar', 'hypercar', 'exhaust', 'turbo', 'supercharger', 'coilover', 'suspension',
+  'widebody', 'engine swap', 'project car', 'aftermarket', 'mod', 'mods', 'build',
+  'car meet', 'cars and coffee', 'detailing', 'wrap', 'vinyl wrap', 'restomod',
+  'electric vehicle', 'ev ', 'tesla', 'rivian', 'lucid', 'porsche', 'bmw', 'audi',
+  'mercedes', 'toyota', 'honda', 'nissan', 'mazda', 'subaru', 'ford', 'chevy',
+  'dodge', 'mustang', 'corvette', 'supra', 'gtr', '911', 'miata', 'civic',
+  'brake', 'wheel', 'wheels', 'tire', 'tires', 'dyno', 'horsepower', 'torque',
 ];
 
 type TrendItemFields = {
@@ -56,7 +60,7 @@ async function fetchText(url: string): Promise<string> {
 
 type TrendItem = TrendItemFields & { title?: string; isoDate?: string; pubDate?: string };
 
-/** Map parsed feed items to RawItems, dropping anything off the tech niche. */
+/** Map parsed feed items to RawItems, dropping anything off the car-culture niche. */
 export function toRawItems(items: TrendItem[]): RawItem[] {
   const out: RawItem[] = [];
 
@@ -71,7 +75,7 @@ export function toRawItems(items: TrendItem[]): RawItem[] {
     ]
       .join(' ')
       .toLowerCase();
-    if (!TECH_KEYWORDS.some((k) => haystack.includes(k))) continue;
+    if (!NICHE_KEYWORDS.some((k) => haystack.includes(k))) continue;
 
     // Prefer a related news headline + URL so the research step has something
     // concrete to scrape; fall back to a Google search for the bare term.
