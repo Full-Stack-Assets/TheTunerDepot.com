@@ -146,7 +146,10 @@ export async function generate(bundle: ResearchBundle): Promise<GeneratedPost> {
     try {
       content = await callLlm(key, userPrompt);
     } catch (err) {
-      // Rate limit / 5xx / network blip — worth another attempt.
+      // Rate limit (429), request-too-large (413), 5xx, or a network blip —
+      // worth another attempt after backing off. Groq's free tier admits a
+      // request only if input + max_tokens fit its 8K TPM budget, so a 413/429
+      // can clear once the rolling minute window resets.
       lastError = err instanceof Error ? err.message : String(err);
       if (attempt < MAX_GENERATION_ATTEMPTS) {
         await sleep(Math.min(30_000, 1000 * 2 ** attempt));
@@ -186,7 +189,11 @@ async function callLlm(key: string, userPrompt: string): Promise<string> {
     body: JSON.stringify({
       model: LLM_MODEL,
       temperature: 0.5,
-      max_tokens: 4096,
+      // Groq's free tier caps openai/gpt-oss-* at 8K tokens per minute, counted
+      // at admission as input + requested output. 3584 out + the trimmed
+      // research prompt (~3.5-4K in) keeps a single request under that budget;
+      // 4096 + the old untrimmed prompt could exceed it outright (413).
+      max_tokens: 3584,
       response_format: { type: 'json_object' },
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
@@ -224,18 +231,20 @@ function finalize(validated: z.infer<typeof PostSchema>, bundle: ResearchBundle)
 function buildUserPrompt(bundle: ResearchBundle): string {
   const { winner, articles, transcripts, related } = bundle;
 
+  // Excerpt caps are sized so the whole prompt lands around 3.5-4K tokens —
+  // together with max_tokens above, a request must fit Groq's 8K TPM budget.
   const articleBlock = articles
     .map(
       (a, i) => `### Source ${i + 1}: ${a.title}
 URL: ${a.url}
-${a.content.slice(0, 4000)}`
+${a.content.slice(0, 2400)}`
     )
     .join('\n\n');
 
   const transcriptBlock = transcripts.length
     ? '\n\n## Video transcripts\n' +
       transcripts
-        .map((t) => `### ${t.title}\n${t.text.slice(0, 3000)}`)
+        .map((t) => `### ${t.title}\n${t.text.slice(0, 1600)}`)
         .join('\n\n')
     : '';
 
