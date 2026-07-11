@@ -6,6 +6,7 @@ import { loadPost, listPosts, relatedPosts } from '@/lib/posts';
 import { mdxComponents } from '@/components/mdx';
 import { articleJsonLd, faqJsonLd, breadcrumbJsonLd, SITE_URL, SITE_NAME } from '@/lib/structured-data';
 import { AdSlot } from '@/components/AdSlot';
+import { siteConfig } from '@/site.config';
 import { ADSENSE_SLOT_IN_ARTICLE } from '@/lib/ads';
 
 export const revalidate = 300;
@@ -96,7 +97,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           <span>·</span>
           <span>{readingTimeMin} min read</span>
         </div>
-        <h1 className="font-display text-4xl sm:text-6xl font-black leading-[1.02] tracking-tight">
+        <h1 className="font-display text-4xl sm:text-6xl font-black uppercase leading-[1.02] tracking-tight">
           {frontmatter.title}
         </h1>
         <p className="mt-6 font-display text-xl sm:text-2xl font-normal leading-snug text-ink/70">
@@ -139,7 +140,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
 
       {/* Sources */}
       {frontmatter.sources?.length > 0 && (
-        <section className="mt-16 border-t-2 border-ink pt-8">
+        <section className="mt-16 border-t-2 border-accent/60 pt-8">
           <div className="mb-4 font-display text-sm font-bold uppercase tracking-[0.3em] text-muted">
             Sources
           </div>
@@ -160,7 +161,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
       {frontmatter.tags?.length > 0 && (
         <div className="mt-10 flex flex-wrap gap-2">
           {frontmatter.tags.map((t) => (
-            <Link key={t} href={`/tags/${t}`} className="border border-ink/30 px-2 py-1 text-[11px] uppercase tracking-widest text-ink/70 hover:border-accent hover:text-accent transition-colors">
+            <Link key={t} href={`/tags/${t}`} className="border border-rule px-2 py-1 text-[11px] uppercase tracking-widest text-ink/70 hover:border-accent hover:text-accent transition-colors">
               #{t}
             </Link>
           ))}
@@ -169,7 +170,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
 
       {/* Keep reading — internal links to related posts */}
       {related.length > 0 && (
-        <section className="mt-16 border-t-2 border-ink pt-8">
+        <section className="mt-16 border-t-2 border-accent/60 pt-8">
           <div className="mb-6 font-display text-sm font-bold uppercase tracking-[0.3em] text-muted">
             Keep reading
           </div>
@@ -196,9 +197,9 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
       )}
 
       {/* Back link */}
-      <div className="mt-16 border-t border-ink/20 pt-8">
+      <div className="mt-16 border-t border-rule pt-8">
         <Link href="/" className="inline-flex items-center gap-2 font-display font-semibold text-accent hover:gap-3 transition-all">
-          ← Back to Wire and Logic
+          ← Back to {siteConfig.name}
         </Link>
       </div>
     </article>

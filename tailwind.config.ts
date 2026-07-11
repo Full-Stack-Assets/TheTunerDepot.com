@@ -8,16 +8,20 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        display: ['var(--font-display)', 'serif'],
+        display: ['var(--font-display)', 'sans-serif'],
         body: ['var(--font-body)', 'sans-serif'],
         mono: ['var(--font-mono)', 'monospace'],
       },
       colors: {
-        ink: '#0a0a0a',
-        paper: '#f6f3ec',
+        // Dark automotive palette: "ink" is the foreground (chalk white) and
+        // "paper" the asphalt background — semantic names kept so existing
+        // text-ink / bg-paper utilities keep reading correctly site-wide.
+        ink: '#f2f1ee',
+        paper: '#101114',
+        carbon: '#1c1f24',
         accent: '#ff5b1f',
-        muted: '#6b6558',
-        rule: '#1a1a1a',
+        muted: '#a3a3ab',
+        rule: '#2a2d33',
         // Intermediate zinc shade used by the VaporLoop demo (/vaporloop)
         'zinc-850': '#1f1f23',
       },
