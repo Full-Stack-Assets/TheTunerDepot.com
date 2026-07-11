@@ -61,7 +61,7 @@ export const siteConfig = {
   // ── Engine: writer LLM (Groq, OpenAI-compatible) ──────────────
   llm: {
     endpoint: 'https://api.groq.com/openai/v1/chat/completions',
-    model: 'llama-3.3-70b-versatile',
+    model: 'openai/gpt-oss-120b',
     apiKeyEnv: 'GROQ_API_KEY',
   },
 

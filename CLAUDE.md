@@ -59,7 +59,7 @@ assume the niche from these posts — trust `src/site.config.ts`.**
   (`content/.topic-log.json`) is the only piece of mutable state.
 - **Zod** validates the LLM's JSON output.
 - **LLM writer**: OpenAI-compatible endpoint; default **Groq**
-  (`model: llama-3.3-70b-versatile`, `apiKeyEnv: GROQ_API_KEY`).
+  (`model: openai/gpt-oss-120b`, `apiKeyEnv: GROQ_API_KEY`).
 - Package manager: the repo ships `package-lock.json`, and CI uses `npm ci`.
   **Use `npm`.** Node 20+.
 
