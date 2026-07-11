@@ -45,12 +45,12 @@ jobs:
 
       - name: Verify required secrets
         env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
         run: |
           missing=0
-          if [ -z "${GEMINI_API_KEY}" ]; then
-            echo "::error::GEMINI_API_KEY secret is not set — the seed runner cannot write posts." >&2
+          if [ -z "${GROQ_API_KEY}" ]; then
+            echo "::error::GROQ_API_KEY is not set. Add it in Settings → Secrets and variables → Actions." >&2
             missing=1
           fi
           if [ -z "${BRAVE_API_KEY}" ]; then
@@ -70,7 +70,6 @@ jobs:
 
       - name: Run seed
         env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
@@ -85,7 +84,7 @@ jobs:
             new_posts=$(git status --porcelain -- content/posts \
               | grep -E '\.mdx$' | grep -vE '^.D' | wc -l | tr -d ' ' || true)
             if [ "${new_posts:-0}" -eq 0 ]; then
-              echo "::error::purge was requested but the seed produced 0 new posts — refusing to commit a wiped catalog. Check that GEMINI_API_KEY and BRAVE_API_KEY are set." >&2
+              echo "::error::purge was requested but the seed produced 0 new posts — refusing to commit a wiped catalog. Check that GROQ_API_KEY and BRAVE_API_KEY are set." >&2
               exit 1
             fi
             echo "Purge run wrote ${new_posts} new post(s); proceeding to commit."
