@@ -48,7 +48,7 @@ function Hero() {
       />
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] font-bold uppercase tracking-[0.3em] text-accent">
         {taglineParts.map((part, i) => (
-          <span key={part} className="flex items-center gap-4">
+          <span key={`${part}-${i}`} className="flex items-center gap-4">
             {i > 0 && <span className="h-3 w-px bg-accent/40" aria-hidden />}
             {part}
           </span>
