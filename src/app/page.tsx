@@ -40,7 +40,7 @@ function Hero() {
   // Split the tagline on its separators so each segment reads like a gauge label.
   const taglineParts = siteConfig.tagline.split(/\s*[·|•]\s*/).filter(Boolean);
   return (
-    <div className="relative mb-16 overflow-hidden border border-rule bg-carbon/50 px-6 py-12 sm:px-10 sm:py-16">
+    <div className="hero-sweep relative mb-16 overflow-hidden border border-rule bg-carbon/50 px-6 py-12 sm:px-10 sm:py-16">
       <div className="stripe-signal absolute inset-x-0 top-0 h-1" aria-hidden />
       <div
         className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rotate-45 bg-accent/[0.06]"
@@ -55,8 +55,9 @@ function Hero() {
         ))}
       </div>
       <h1 className="mt-4 font-display text-5xl font-black uppercase leading-[0.95] tracking-tight sm:text-7xl">
-        Redline<br /><span className="text-accent">every hour.</span>
+        Redline<br /><span className="headline-heat">every hour.</span>
       </h1>
+      <div className="speedlines mt-5 w-56" aria-hidden />
       <p className="mt-6 max-w-2xl text-base leading-relaxed text-muted sm:text-lg">
         {siteConfig.description}
       </p>
@@ -81,7 +82,7 @@ function SectionRule({ label }: { label: string }) {
 function LeadStory({ post }: { post: Awaited<ReturnType<typeof listPosts>>[number] }) {
   const { slug, frontmatter, readingTimeMin } = post;
   return (
-    <article className="group grid gap-8 overflow-hidden border border-rule bg-carbon/40 transition-all duration-300 hover:-translate-y-1 hover:border-accent/50 hover:shadow-[0_20px_60px_-20px_rgba(255,91,31,0.25)] sm:grid-cols-5">
+    <article className="group rev-glow grid gap-8 overflow-hidden border border-rule bg-carbon/40 hover:-translate-y-1 sm:grid-cols-5">
       {frontmatter.hero?.url && (
         <div className="aspect-[4/3] overflow-hidden bg-ink/5 sm:col-span-3">
           <Link href={`/blog/${slug}`}>
@@ -116,7 +117,7 @@ function LeadStory({ post }: { post: Awaited<ReturnType<typeof listPosts>>[numbe
 function PostCard({ post }: { post: Awaited<ReturnType<typeof listPosts>>[number] }) {
   const { slug, frontmatter, readingTimeMin } = post;
   return (
-    <article className="group flex flex-col overflow-hidden border border-rule bg-carbon/40 transition-all duration-300 hover:-translate-y-1 hover:border-accent/50 hover:shadow-[0_16px_40px_-16px_rgba(255,91,31,0.3)]">
+    <article className="group rev-glow flex flex-col overflow-hidden border border-rule bg-carbon/40 hover:-translate-y-1">
       {frontmatter.hero?.url && (
         <Link href={`/blog/${slug}`} className="block aspect-[16/10] overflow-hidden bg-ink/5">
           {/* eslint-disable-next-line @next/next/no-img-element */}

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Saira_Condensed, Barlow, JetBrains_Mono } from 'next/font/google';
 import Link from 'next/link';
 import Script from 'next/script';
 import { Analytics } from '@vercel/analytics/next';
@@ -9,6 +10,27 @@ import { AdSlot } from '@/components/AdSlot';
 import { ADSENSE_CLIENT, ADSENSE_SLOT_FOOTER } from '@/lib/ads';
 import { siteConfig } from '@/site.config';
 import './globals.css';
+
+// Motorsport type pairing: a heavy condensed display face for headlines and
+// gauge labels, a refined grotesque for body copy, and a mono for data labels.
+const displayFont = Saira_Condensed({
+  subsets: ['latin'],
+  weight: ['600', '700', '800', '900'],
+  variable: '--font-display',
+  display: 'swap',
+});
+const bodyFont = Barlow({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-body',
+  display: 'swap',
+});
+const monoFont = JetBrains_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500', '700'],
+  variable: '--font-mono',
+  display: 'swap',
+});
 
 /** Short categories (AI, DIY) read better uppercased; longer ones title-cased. */
 function navLabel(c: string): string {
@@ -45,7 +67,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${displayFont.variable} ${bodyFont.variable} ${monoFont.variable}`}>
       <body className="relative">
         {ADSENSE_CLIENT && (
           <Script
