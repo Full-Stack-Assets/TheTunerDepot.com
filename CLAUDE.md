@@ -58,8 +58,8 @@ assume the niche from these posts — trust `src/site.config.ts`.**
   `content/posts/`. There is **no database**. The "topic log"
   (`content/.topic-log.json`) is the only piece of mutable state.
 - **Zod** validates the LLM's JSON output.
-- **LLM writer**: OpenAI-compatible endpoint; default **Google Gemini**
-  (`apiKeyEnv: GEMINI_API_KEY`).
+- **LLM writer**: OpenAI-compatible endpoint; default **Groq**
+  (`model: openai/gpt-oss-120b`, `apiKeyEnv: GROQ_API_KEY`).
 - Package manager: the repo ships `package-lock.json`, and CI uses `npm ci`.
   **Use `npm`.** Node 20+.
 
@@ -214,11 +214,11 @@ override — note the empty-string guard, since unset CI secrets arrive as `""`)
 - **`src/site.config.ts`** — the one file that defines the site: branding,
   `audience` (goes into the writer prompt), `categories`/`navCategories`,
   `sources` (subreddits / RSS feeds / Brave queries), `adsenseClient`, the `llm`
-  block (OpenAI-compatible `endpoint` + `model` + `apiKeyEnv`; default **Google
-  Gemini**), and `imageProvider` (`pexels` | `openverse` | `none`).
+  block (OpenAI-compatible `endpoint` + `model` + `apiKeyEnv`; default **Groq**),
+  and `imageProvider` (`pexels` | `openverse` | `none`).
 - **Secrets** live in `.env.local` locally and GitHub Actions secrets in CI.
   `.env.example` is the full annotated list. The LLM key name **must match**
-  `siteConfig.llm.apiKeyEnv` (default `GEMINI_API_KEY`) — without it the hourly
+  `siteConfig.llm.apiKeyEnv` (default `GROQ_API_KEY`) — without it the hourly
   Action can't run. Most source/integration keys are optional — an unset one is
   skipped, not fatal.
 - **Never commit real keys.** `.env*` is gitignored; `.env.example` holds

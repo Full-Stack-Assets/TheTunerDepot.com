@@ -58,11 +58,11 @@ export const siteConfig = {
   // ── Ads ───────────────────────────────────────────────────────
   adsenseClient: 'ca-pub-4655488107179825',
 
-  // ── Engine: writer LLM (Google Gemini, OpenAI-compatible) ─────
+  // ── Engine: writer LLM (Groq, OpenAI-compatible) ──────────────
   llm: {
-    endpoint: 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',
-    model: 'gemini-2.5-flash',
-    apiKeyEnv: 'GEMINI_API_KEY',
+    endpoint: 'https://api.groq.com/openai/v1/chat/completions',
+    model: 'openai/gpt-oss-120b',
+    apiKeyEnv: 'GROQ_API_KEY',
   },
 
   // ── Engine: hero images ('pexels' | 'openverse' | 'none') ─────

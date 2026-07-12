@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Saira_Condensed, Barlow, JetBrains_Mono } from 'next/font/google';
 import Link from 'next/link';
 import Script from 'next/script';
 import { Analytics } from '@vercel/analytics/next';
@@ -9,6 +10,27 @@ import { AdSlot } from '@/components/AdSlot';
 import { ADSENSE_CLIENT, ADSENSE_SLOT_FOOTER } from '@/lib/ads';
 import { siteConfig } from '@/site.config';
 import './globals.css';
+
+// Motorsport type pairing: a heavy condensed display face for headlines and
+// gauge labels, a refined grotesque for body copy, and a mono for data labels.
+const displayFont = Saira_Condensed({
+  subsets: ['latin'],
+  weight: ['600', '700', '800', '900'],
+  variable: '--font-display',
+  display: 'swap',
+});
+const bodyFont = Barlow({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-body',
+  display: 'swap',
+});
+const monoFont = JetBrains_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500', '700'],
+  variable: '--font-mono',
+  display: 'swap',
+});
 
 /** Short categories (AI, DIY) read better uppercased; longer ones title-cased. */
 function navLabel(c: string): string {
@@ -45,7 +67,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${displayFont.variable} ${bodyFont.variable} ${monoFont.variable}`}>
       <body className="relative">
         {ADSENSE_CLIENT && (
           <Script
@@ -74,17 +96,18 @@ function Header() {
   const brandLast = words.pop();
   const brandLead = words.join(' ');
   return (
-    <header className="relative z-20 border-b border-ink/20">
-      <div className="mx-auto flex max-w-6xl items-end justify-between px-6 py-6">
+    <header className="sticky top-0 z-40 border-b border-rule bg-paper/80 backdrop-blur-md supports-[backdrop-filter]:bg-paper/70">
+      <div className="stripe-signal h-[3px]" aria-hidden />
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
         <Link href="/" className="group">
-          <div className="font-display text-3xl font-black tracking-tight leading-none">
+          <div className="font-display text-2xl font-black uppercase tracking-tight leading-none">
             {brandLead ? `${brandLead} ` : ''}<span className="text-accent">{brandLast}</span>
           </div>
-          <div className="mt-1 text-[10px] uppercase tracking-[0.2em] text-muted">
+          <div className="mt-1 text-[10px] uppercase tracking-[0.25em] text-muted">
             {siteConfig.tagline}
           </div>
         </Link>
-        <nav className="hidden sm:flex items-center gap-6 text-sm font-medium">
+        <nav className="hidden sm:flex items-center gap-6 text-[13px] font-semibold uppercase tracking-[0.12em]">
           <Link href="/" className="hover:text-accent transition-colors">Latest</Link>
           {siteConfig.navCategories.map((c) => (
             <Link key={c} href={`/categories/${c}`} className="hover:text-accent transition-colors">{navLabel(c)}</Link>
@@ -102,7 +125,8 @@ function Header() {
 
 function Footer() {
   return (
-    <footer className="relative z-10 mt-32 border-t border-ink/20">
+    <footer className="relative z-10 mt-32 border-t border-rule bg-carbon/40">
+      <div className="gauge-ticks" aria-hidden />
       <div className="mx-auto max-w-6xl px-6 py-10 text-sm text-muted">
         <AdSlot slot={ADSENSE_SLOT_FOOTER} format="auto" className="mb-8 block" />
         <div className="mb-8 flex flex-col gap-4 border-b border-ink/15 pb-8 sm:flex-row sm:items-center sm:justify-between">
