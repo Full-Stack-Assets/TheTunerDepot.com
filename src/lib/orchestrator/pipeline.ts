@@ -10,6 +10,7 @@ import { pickImage } from './image';
 import { serialize } from './serialize';
 import { loadTopicLog, saveTopicLog, commitPost } from './github';
 import type { RawItem, ScoredItem, TopicLog } from './types';
+import { siteConfig } from '@/site.config';
 
 export interface PipelineResult {
   ok: boolean;
@@ -76,6 +77,19 @@ export async function runPipeline(opts: PipelineOptions = {}): Promise<PipelineR
       return {
         ok: false,
         skipped: `no research content scrapable for: ${winner.title}`,
+        winner: { title: winner.title, url: winner.url, score: winner.score },
+        timings,
+      };
+    }
+
+    // Missing LLM key should be a graceful skip (same fail-soft policy as other
+    // external dependencies), not a hard failure that marks the whole scheduled
+    // run red.
+    const llmKey = process.env[siteConfig.llm.apiKeyEnv];
+    if (!llmKey || llmKey.trim().length === 0) {
+      return {
+        ok: false,
+        skipped: `${siteConfig.llm.apiKeyEnv} not set`,
         winner: { title: winner.title, url: winner.url, score: winner.score },
         timings,
       };
