@@ -1,0 +1,120 @@
+name: One-shot platform cleanup
+
+on:
+  push:
+    branches:
+      - agent/remove-platform-coupling
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout cleanup branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Remove retired integration
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          import re
+
+          root = Path('.')
+          for stale in ('vercel.json', 'SECURITY_REMEDIATION.md'):
+              path = root / stale
+              if path.exists():
+                  path.unlink()
+
+          package_path = root / 'package.json'
+          package = json.loads(package_path.read_text())
+          for section in ('dependencies', 'devDependencies', 'optionalDependencies'):
+              values = package.get(section, {})
+              values.pop('@vercel/analytics', None)
+              values.pop('@vercel/speed-insights', None)
+          package_path.write_text(json.dumps(package, indent=2) + '\n')
+
+          layout_path = root / 'src/app/layout.tsx'
+          layout = layout_path.read_text()
+          layout = re.sub(r"^import \{ Analytics \} from '@vercel/analytics/next';\n", '', layout, flags=re.M)
+          layout = re.sub(r"^import \{ SpeedInsights \} from '@vercel/speed-insights/next';\n", '', layout, flags=re.M)
+          layout = re.sub(r'^\s*<Analytics\s*/>\n', '', layout, flags=re.M)
+          layout = re.sub(r'^\s*<SpeedInsights\s*/>\n', '', layout, flags=re.M)
+          layout_path.write_text(layout)
+
+          seed_path = root / '.github/workflows/seed.yml'
+          seed = seed_path.read_text()
+          seed = re.sub(r'\n\s{8}env:\n\s{10}VERCEL_DEPLOY_HOOK_URL:.*\n\s{10}PRODUCTION_BRANCH: main\n', '\n', seed)
+          seed = re.sub(r'\n\s{14}if \[ -n "\$\{VERCEL_DEPLOY_HOOK_URL\}" \].*?\n\s{14}fi', '', seed, flags=re.S)
+          seed = seed.replace("node-version: '20'", "node-version: '24'")
+          seed_path.write_text(seed)
+
+          about_path = root / 'src/app/about/page.tsx'
+          about = about_path.read_text()
+          about = about.replace('Vercel notices and deploys.', 'GitHub Pages publishes the reviewed static build.')
+          about = about.replace('Next.js, TinaCMS, Vercel, Groq, and a lot of free public APIs.',
+                                'Next.js, TinaCMS, GitHub Pages, Groq, and a collection of public APIs.')
+          about_path.write_text(about)
+
+          replacements = {
+              'https://thetunerdepot.vercel.app': 'https://thetunerdepot.com',
+              'vercel.json': '.github/workflows/pages.yml',
+              'Vercel/Cloudflare': 'GitHub Pages',
+              'Vercel': 'GitHub Pages',
+              'vercel': 'static hosting',
+          }
+          for name in ('README.md', 'CREATE-A-SITE.md', 'CLAUDE.md'):
+              path = root / name
+              if path.exists():
+                  text = path.read_text()
+                  for old, new in replacements.items():
+                      text = text.replace(old, new)
+                  path.write_text(text)
+
+          gitignore = root / '.gitignore'
+          if gitignore.exists():
+              lines = [line for line in gitignore.read_text().splitlines() if '.vercel' not in line.lower()]
+              gitignore.write_text('\n'.join(lines) + '\n')
+          PY
+
+          npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+          npm ci --no-audit --no-fund
+
+      - name: Verify static production build
+        env:
+          NEXT_PUBLIC_SITE_URL: https://thetunerdepot.com
+        run: npm run build
+
+      - name: Verify zero residual references
+        shell: bash
+        run: |
+          rm .github/workflows/one-shot-platform-cleanup.yml
+          if grep -RinI --exclude-dir=.git --exclude='*.pdf' 'vercel' .; then
+            echo 'Residual retired-platform reference found.' >&2
+            exit 1
+          fi
+          test -f out/index.html
+          test -f out/CNAME
+
+      - name: Commit verified cleanup
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Remove retired hosting integration"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
