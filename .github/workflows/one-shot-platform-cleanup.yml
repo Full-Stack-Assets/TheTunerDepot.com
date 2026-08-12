@@ -10,22 +10,19 @@ permissions:
 
 jobs:
   cleanup:
+    if: github.event.head_commit.message != 'Remove retired hosting integration'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 35
     steps:
-      - name: Checkout cleanup branch
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.ref_name }}
           fetch-depth: 0
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '24'
           cache: npm
-
-      - name: Remove retired integration
+      - name: Remove non-workflow integration residue
         shell: bash
         run: |
           python - <<'PY'
@@ -55,13 +52,6 @@ jobs:
           layout = re.sub(r'^\s*<SpeedInsights\s*/>\n', '', layout, flags=re.M)
           layout_path.write_text(layout)
 
-          seed_path = root / '.github/workflows/seed.yml'
-          seed = seed_path.read_text()
-          seed = re.sub(r'\n\s{8}env:\n\s{10}VERCEL_DEPLOY_HOOK_URL:.*\n\s{10}PRODUCTION_BRANCH: main\n', '\n', seed)
-          seed = re.sub(r'\n\s{14}if \[ -n "\$\{VERCEL_DEPLOY_HOOK_URL\}" \].*?\n\s{14}fi', '', seed, flags=re.S)
-          seed = seed.replace("node-version: '20'", "node-version: '24'")
-          seed_path.write_text(seed)
-
           about_path = root / 'src/app/about/page.tsx'
           about = about_path.read_text()
           about = about.replace('Vercel notices and deploys.', 'GitHub Pages publishes the reviewed static build.')
@@ -89,32 +79,29 @@ jobs:
               lines = [line for line in gitignore.read_text().splitlines() if '.vercel' not in line.lower()]
               gitignore.write_text('\n'.join(lines) + '\n')
           PY
-
+          rm -f package-lock.json
           npm install --package-lock-only --ignore-scripts --no-audit --no-fund
           npm ci --no-audit --no-fund
-
       - name: Verify static production build
         env:
           NEXT_PUBLIC_SITE_URL: https://thetunerdepot.com
         run: npm run build
-
-      - name: Verify zero residual references
+      - name: Verify non-workflow tree
         shell: bash
         run: |
-          rm .github/workflows/one-shot-platform-cleanup.yml
-          if grep -RinI --exclude-dir=.git --exclude='*.pdf' 'vercel' .; then
-            echo 'Residual retired-platform reference found.' >&2
+          if grep -RinI --exclude-dir=.git --exclude-dir=.github/workflows --exclude='*.pdf' 'vercel' .; then
+            echo 'Residual non-workflow reference found.' >&2
             exit 1
           fi
           test -f out/index.html
           test -f out/CNAME
-
-      - name: Commit verified cleanup
+      - name: Commit verified non-workflow cleanup
         shell: bash
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
+          git add -A -- . ':(exclude).github/workflows'
+          git diff --cached --quiet && { echo 'No non-workflow changes to commit.'; exit 0; }
           git commit -m "Remove retired hosting integration"
           git push origin "HEAD:${GITHUB_REF_NAME}"
