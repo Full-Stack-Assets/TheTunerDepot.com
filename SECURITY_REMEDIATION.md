@@ -54,7 +54,6 @@ The following credentials were exposed in commit `997e65f`:
 #### CRON_SECRET
 1. Generate a new secret: `openssl rand -hex 32`
 2. Update your `.env.local` file
-3. Update the secret in your deployment environment (Vercel/Cloudflare)
 
 ### 2. Clean Git History (IMPORTANT)
 
@@ -107,7 +106,6 @@ git push --force
 
 After rotating all keys, update them in your deployment environments:
 
-#### Vercel
 1. Go to your project settings
 2. Navigate to Environment Variables
 3. Update all the rotated API keys

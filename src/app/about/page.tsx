@@ -25,7 +25,7 @@ export default function AboutPage() {
           <li><strong>Score.</strong> Each candidate gets a composite score — popularity, engagement, recency — and anything already covered is filtered out.</li>
           <li><strong>Research.</strong> The winner gets Brave-searched, the top articles scraped, and any relevant YouTube transcripts pulled.</li>
           <li><strong>Write.</strong> All of it is handed to an LLM with an explicit MDX contract: an opening, a takeaway, what-happened/why-it-matters sections, a pros/cons block, a how-to-think-about-it section, and a three-question FAQ.</li>
-          <li><strong>Publish.</strong> The MDX file, with a hero image and frontmatter, is committed to GitHub. Vercel notices and deploys.</li>
+          <li><strong>Publish.</strong> The MDX file, with a hero image and frontmatter, is committed to GitHub. The hosting platform rebuilds from the committed content.</li>
         </ol>
 
         <h2>The caveats</h2>
@@ -37,7 +37,7 @@ export default function AboutPage() {
 
         <h2>The stack</h2>
         <p>
-          Next.js, TinaCMS, Vercel, Groq, and a lot of free public APIs.
+          Next.js, TinaCMS, Groq, and a lot of free public APIs.
           Total running cost: $0/month at steady state.
         </p>
 
