@@ -1,6 +1,9 @@
-# Wire and Logic
+# The Tuner Depot
 
-A self-hosted, zero-cost trend blog. A scheduled job runs every hour, picks the highest-signal story from seven sources, researches it, writes a structured MDX post, and commits it to GitHub. The Next.js site auto-deploys.
+A statically deployed automotive publication. A scheduled job runs every hour,
+picks the highest-signal car-culture story from the configured sources,
+researches it, writes a structured MDX post, and commits it to GitHub. The
+existing Pages workflow publishes successful generation runs.
 
 
 **Monthly cost at steady state:** $0.
@@ -27,13 +30,13 @@ Each stage is its own module in `src/lib/orchestrator/` and can be tested indepe
 ### 1. Prereqs
 
 - Node 20+
-- `pnpm` (or npm/yarn — adjust commands accordingly)
+- `npm` (the repository ships `package-lock.json`; CI uses `npm ci`)
 - A GitHub repo to commit posts into (can be this same repo)
 
 ### 2. Install
 
 ```bash
-pnpm install
+npm install
 cp .env.example .env.local
 ```
 
@@ -41,11 +44,10 @@ cp .env.example .env.local
 
 | Key | Where | Free tier |
 |---|---|---|
-| `GROQ_API_KEY` | https://console.groq.com/keys | Generous rate limits, ~30 RPM on llama-3.3-70b |
+| `GROQ_API_KEY` | https://console.groq.com/keys | Writer access for the configured Groq model |
 | `BRAVE_API_KEY` | https://api.search.brave.com/app/keys | 2,000 queries/month on the free plan |
 | `PEXELS_API_KEY` | https://www.pexels.com/api/new/ | Unlimited for dev use |
 | `GITHUB_TOKEN` | github.com → Settings → Developer settings → Fine-grained PAT | Scope: **Contents: Read/Write** on the blog repo only |
-| `CRON_SECRET` | `openssl rand -hex 32` | — |
 
 Fill them into `.env.local` along with `GITHUB_OWNER` / `GITHUB_REPO` / `GITHUB_BRANCH`.
 
@@ -55,16 +57,16 @@ Fill them into `.env.local` along with `GITHUB_OWNER` / `GITHUB_REPO` / `GITHUB_
 
 ```bash
 # Dry run — prints the generated post, doesn't write anything
-pnpm generate --dry
+npm run generate -- --dry
 
 # Real run — writes MDX to content/posts/ and updates content/.topic-log.json
-pnpm generate
+npm run generate
 
 # Start the dev server
-pnpm dev
+npm run dev
 ```
 
-Open http://localhost:3000. The seed post is visible out of the box; new posts show up as soon as `pnpm generate` writes them.
+Open http://localhost:3000. New posts show up as soon as `npm run generate` writes them.
 
 ---
 
@@ -72,26 +74,20 @@ Open http://localhost:3000. The seed post is visible out of the box; new posts s
 
 ### Scheduling — GitHub Actions (the hourly tick)
 
-The hourly schedule lives in **`.github/workflows/generate.yml`**, which runs at the top of every hour (`cron: '0 * * * *'`), executes the pipeline with `npx tsx scripts/run-local.ts`, and commits any new post straight to the repo. No serverless CPU limits, free logs, and the push triggers your host to redeploy. This is the scheduler — your host below is just for serving the site.
+The hourly schedule lives in **`.github/workflows/generate.yml`**, which runs at
+the top of every hour, executes the pipeline with `npx tsx scripts/run-local.ts`,
+and commits any new post to the repository. A successful run triggers the
+existing GitHub Pages workflow, avoiding reliance on recursive bot pushes.
 
 Add the pipeline secrets (`GROQ_API_KEY`, `BRAVE_API_KEY`, `PEXELS_API_KEY`, `REDDIT_CLIENT_ID`, `REDDIT_CLIENT_SECRET`) under **Settings → Secrets and variables → Actions**. The workflow has `contents: write` and a `concurrency` group so a slow run never overlaps the next tick. Use the **Run workflow** button (`workflow_dispatch`) to trigger a one-off run.
 
+### Hosting — GitHub Pages
 
-
-1. Push this repo to GitHub.
-
-
-### Hosting — Cloudflare Pages (zero-cost route)
-
-Deploy the Next.js blog to Pages purely as the static host — it's free and fast, and it redeploys on each push from the Action. Pages Functions have a **~30s CPU limit per request** and this pipeline runs 30–90s end-to-end, so don't try to run the pipeline inside a Pages Function; let the GitHub Action do the generation.
-
-### Self-host
-
-`pnpm build && pnpm start` and point a reverse proxy at port 3000. The GitHub Action still drives generation; to trigger a run by hand, hit the route with `curl`:
-
-```bash
-curl -H "Authorization: Bearer $CRON_SECRET" https://your-domain/api/cron/generate
-```
+The approved production path is **`.github/workflows/pages.yml`**. It exports
+the site to `out/`, verifies `out/index.html` and `out/CNAME`, and deploys with
+GitHub Pages. In **Settings → Pages**, set Source to **GitHub Actions** and add
+`thetunerdepot.com` as the custom domain. Public newsletter and monetization
+settings belong under Actions variables.
 
 ---
 
@@ -100,7 +96,7 @@ curl -H "Authorization: Bearer $CRON_SECRET" https://your-domain/api/cron/genera
 The schema in `tina/config.ts` matches the frontmatter the pipeline emits. Start the editor with:
 
 ```bash
-pnpm dev   # Tina runs alongside Next via the `tinacms dev` wrapper
+npm run dev   # Tina runs alongside Next via the `tinacms dev` wrapper
 ```
 
 Then visit http://localhost:3000/admin/index.html. You can fix typos, tweak tags, or hand-write posts that follow the same structure.
@@ -146,7 +142,7 @@ Dedup uses a sorted-token fingerprint of the title, so "GPT-5 released today" an
 
 ## Troubleshooting
 
-**"no items from any source"** — all six sources failed. Usually a network blip; check logs. Try `pnpm generate --dry` after a minute.
+**"no items from any source"** — all sources failed. Usually a network blip; check logs. Try `npm run generate -- --dry` after a minute.
 
 **"all top candidates already covered"** — the scorer found winners, but every one has a signature that's already in the topic log. Either wait for new stories or delete recent entries from `content/.topic-log.json`.
 
@@ -154,7 +150,7 @@ Dedup uses a sorted-token fingerprint of the title, so "GPT-5 released today" an
 
 **Groq rate limit** — the free tier resets every minute. One post/hour stays comfortably under the limit, but if you're iterating locally, just wait a minute.
 
-**Cloudflare Pages timeouts** — see Option B above. Pages Functions can't run this pipeline end-to-end.
+**Pages configuration fails with “Not Found”** — enable GitHub Pages in repository Settings and select **GitHub Actions** as the source before rerunning the workflow.
 
 ---
 
@@ -164,6 +160,26 @@ Dedup uses a sorted-token fingerprint of the title, so "GPT-5 released today" an
 - **Tune the tone:** edit `SYSTEM_PROMPT` in `generate.ts`. The zod schema will catch anything structurally broken.
 - **Change the niche:** adjust `SUBREDDITS` in `reddit.ts`, `BRAVE_QUERIES` in `bravenews.ts`, and `DEFAULT_FEEDS` in `rss.ts`.
 - **Change the cadence:** edit the `cron` in `.github/workflows/generate.yml` (e.g. `0 */2 * * *` for every two hours, `0 12 * * *` for daily). For multiple posts per tick, call `runPipeline()` in a loop with different category filters.
+
+---
+
+## Server-runtime build
+
+GitHub Pages remains the active production deployment until Human Authority
+selects and configures the replacement server host. The repository can also
+produce a provider-neutral Node.js runtime without changing that production
+boundary:
+
+~~~bash
+npm run build:server
+HOSTNAME=0.0.0.0 PORT=3000 node .next/standalone/server.js
+~~~
+
+The server build uses Next.js standalone output and packages both `public/`
+and `.next/static/`, preventing browser assets from returning 404 after
+deployment. A successful local build is not evidence of a production rollout;
+the approved host, secrets, custom-domain routing, health checks, and live-route
+verification are still required before changing the production claim.
 
 ---
 
